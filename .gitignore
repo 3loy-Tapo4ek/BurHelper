@@ -1,6 +1,5 @@
 *.iml
 .gradle/
-gradle/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -17,7 +16,3 @@ local.properties
 
 .idea/
 .kotlin/
-gradle.properties
-gradlew
-gradlew.bat
-settings.gradle.kts
