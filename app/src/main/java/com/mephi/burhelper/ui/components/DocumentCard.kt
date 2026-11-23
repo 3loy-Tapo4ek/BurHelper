@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Arrangement
 import org.w3c.dom.Document
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import android.content.res.Configuration
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import com.mephi.burhelper.ui.theme.pdfContainerDark
@@ -36,20 +36,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun DocumentCard(
     title: String,
     date: String,
+    onShareClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.fillMaxWidth(),
 
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -57,11 +60,11 @@ fun DocumentCard(
     )
     {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(wordContainerDark)
@@ -86,45 +89,34 @@ fun DocumentCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = {
-                            val deepLinkUri = "burhelper://document/$title"
-
-                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, deepLinkUri)
-
-                                clipData = ClipData.newPlainText("Ссылка", deepLinkUri)
-                            }
-
-                            val shareIntent = Intent.createChooser(
-                                sendIntent,
-                                "Поделиться документом"
-                            )
-
-                            context.startActivity(shareIntent)
-                        },
+                        onClick = { onShareClick() },
 
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     ) {
+                        Icon(Icons.Outlined.Share, contentDescription = "Shate")
                         Text(
                             text = "Поделиться",
                             style = MaterialTheme.typography.labelLarge
                         )
+
                     }
                     Button(
-                        onClick = { },
+                        onClick = { onDeleteClick() },
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     ) {
+                        Icon(Icons.Outlined.Delete, contentDescription = "Shate")
                         Text(
                             text = "Удалить",
                             style = MaterialTheme.typography.labelLarge
@@ -133,18 +125,5 @@ fun DocumentCard(
                 }
             }
         }
-    }
-}
-
-@Preview(
-    showBackground = true
-)
-@Composable
-fun DocumentCardPreview() {
-    AppTheme {
-        DocumentCard(
-            title = "Мой_документ.docx",
-            date = "01.11.2026"
-        )
     }
 }

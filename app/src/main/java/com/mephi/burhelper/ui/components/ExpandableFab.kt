@@ -1,7 +1,12 @@
 package com.mephi.burhelper.ui.components
 
 import android.widget.Button
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Upload
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -16,7 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ExpandableFab(
@@ -27,17 +34,20 @@ fun ExpandableFab(
     var isExpanded by remember { mutableStateOf(false) }
 
     Column(
-        horizontalAlignment = Alignment.End
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (isExpanded)
         {
             ExtendedFloatingActionButton(onClick = { onCreateClick() }) {
+                Icon(Icons.Outlined.Add, "Add")
                 Text(
                     text = "Создать документ"
                 )
             }
 
             ExtendedFloatingActionButton(onClick = { onImportClick()}) {
+                Icon(Icons.Outlined.Upload, "Add")
                 Text(
                     text = "Импортировать шаблон"
                 )
@@ -45,9 +55,7 @@ fun ExpandableFab(
         }
 
         FloatingActionButton(onClick = { isExpanded = !isExpanded }) {
-            Text(
-                text = "тест"
-            )
+            Icon(Icons.Outlined.Add, "Add")
         }
     }
 }

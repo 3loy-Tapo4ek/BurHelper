@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,51 +25,30 @@ import com.mephi.burhelper.ui.theme.AppTheme
 import com.mephi.burhelper.ui.components.DocumentCard
 import com.mephi.burhelper.ui.components.ExpandableFab
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mephi.burhelper.navigation.AppNavigation
+import com.mephi.burhelper.ui.screens.HomeScreen
+import com.mephi.burhelper.ui.screens.HomeViewModel
 
 class MainActivity : ComponentActivity() {
-    private var documentList = mutableStateListOf<String>("Стандартный_документ.docx")
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        handleLink(intent)?.let { titleFromLink ->
-            if (!documentList.contains(titleFromLink)) {
-                documentList.add(0, titleFromLink)
-            }
-        }
-
         enableEdgeToEdge()
+
+        handleLink(intent)?.let(viewModel::onDocumentLinkReceived)
+
         setContent {
-            AppTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    floatingActionButton = {
-                        ExpandableFab(
-                            onCreateClick = {
-                                val size = documentList.size
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-                                val new_title = "Документ_${size+1}.docx"
-
-                                documentList.add(0, new_title)
-                            },
-                            onImportClick = {},
-                        )
-                    }
-                    ) { innerPadding ->
-                    LazyColumn(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(documentList) { title ->
-                            DocumentCard(
-                                title = title,
-                                date = "DD.MM.YYYY"
-                            )
-                        }
-                    }
-                }
+            AppTheme(darkTheme = uiState.isDarkTheme) {
+                AppNavigation(viewModel = viewModel)
             }
         }
     }
@@ -77,22 +57,13 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        handleLink(intent)?.let { titleFromLink ->
-            if (!documentList.contains(titleFromLink)) {
-                documentList.add(0, titleFromLink)
-            }
-        }
+        handleLink(intent)?.let(viewModel::onDocumentLinkReceived)
     }
 
-    private fun handleLink(intent: Intent?): String? {
-        val uri = intent?.data ?: return null
-
-        val docId = uri.pathSegments.getOrNull(0)
-
-        if (docId.isNullOrBlank()) {
-            return null
-        }
-
-        return Uri.decode(docId)
-    }
+    private fun handleLink(intent: Intent?): String? =
+        intent?.data
+            ?.takeIf { it.scheme == "burhelper" && it.host == "document" }
+            ?.pathSegments
+            ?.firstOrNull()
+            ?.takeIf(String::isNotBlank)
 }
